@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Circle, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -49,6 +49,47 @@ type InteractiveMapProps = {
 
 export default function InteractiveMap({ targetPosition, impactZones, onMapClick, showImpact }: InteractiveMapProps) {
   const mapRef = useRef<L.Map | null>(null);
+  const [asteroidFalling, setAsteroidFalling] = useState(false);
+  const [showExplosion, setShowExplosion] = useState(false);
+  const [craterExpanding, setCraterExpanding] = useState(false);
+  const [asteroidPosition, setAsteroidPosition] = useState<{ x: number; y: number } | null>(null);
+  
+  useEffect(() => {
+    if (showImpact && targetPosition) {
+      // Start asteroid falling animation
+      setAsteroidFalling(true);
+      setCraterExpanding(false);
+      
+      // Calculate asteroid start position (above target)
+      if (mapRef.current) {
+        const map = mapRef.current;
+        const point = map.latLngToContainerPoint([targetPosition.lat, targetPosition.lng]);
+        setAsteroidPosition({ x: point.x, y: point.y });
+      }
+      
+      // After asteroid falls (2.5s), show explosion
+      setTimeout(() => {
+        setAsteroidFalling(false);
+        setShowExplosion(true);
+      }, 2500);
+      
+      // After explosion flash (300ms), start crater expansion
+      setTimeout(() => {
+        setShowExplosion(false);
+        setCraterExpanding(true);
+      }, 2800);
+      
+      // Keep crater expanded
+      setTimeout(() => {
+        setCraterExpanding(false);
+      }, 4800);
+    } else {
+      setAsteroidFalling(false);
+      setShowExplosion(false);
+      setCraterExpanding(false);
+      setAsteroidPosition(null);
+    }
+  }, [showImpact, targetPosition]);
   
   return (
     <div className="absolute inset-0 z-0">
@@ -68,7 +109,7 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
         
         <MapClickHandler onMapClick={onMapClick} />
         
-        {targetPosition && showImpact && impactZones.map((zone, index) => (
+        {targetPosition && showImpact && !craterExpanding && impactZones.map((zone, index) => (
           <Circle
             key={`${zone.label}-${index}`}
             center={[targetPosition.lat, targetPosition.lng]}
@@ -82,10 +123,57 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
           />
         ))}
         
+        {targetPosition && showImpact && craterExpanding && impactZones.map((zone, index) => (
+          <Circle
+            key={`${zone.label}-expanding-${index}`}
+            center={[targetPosition.lat, targetPosition.lng]}
+            radius={zone.radius}
+            pathOptions={{
+              color: zone.color,
+              fillColor: zone.color,
+              fillOpacity: 0.3,
+              weight: 2,
+            }}
+            className="crater-expanding"
+          />
+        ))}
+        
         {targetPosition && (
           <Marker position={[targetPosition.lat, targetPosition.lng]} />
         )}
       </MapContainer>
+      
+      {/* Asteroid falling animation */}
+      {asteroidFalling && asteroidPosition && (
+        <div
+          className="asteroid-falling"
+          style={{
+            left: `${asteroidPosition.x}px`,
+            top: `${asteroidPosition.y}px`,
+          }}
+        >
+          <div className="asteroid-body">
+            <div className="asteroid-core"></div>
+            <div className="asteroid-trail"></div>
+          </div>
+        </div>
+      )}
+      
+      {/* Explosion flash */}
+      {showExplosion && asteroidPosition && (
+        <div
+          className="explosion-flash"
+          style={{
+            left: `${asteroidPosition.x}px`,
+            top: `${asteroidPosition.y}px`,
+          }}
+        >
+          <div className="explosion-ring explosion-ring-1"></div>
+          <div className="explosion-ring explosion-ring-2"></div>
+          <div className="explosion-ring explosion-ring-3"></div>
+          <div className="explosion-core"></div>
+        </div>
+      )}
     </div>
   );
 }
