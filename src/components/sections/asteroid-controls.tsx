@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 type AsteroidControlsProps = {
-  onLaunch: (diameter: number, speed: number, angle: number) => void;
+  onLaunch: (diameter: number, speed: number, angle: number, density: number) => void;
   hasTarget: boolean;
-  initialParams?: { diameter: number; speed: number } | null;
+  initialParams?: { diameter: number; speed: number; density?: number } | null;
 };
 
 export default function AsteroidControls({ onLaunch, hasTarget, initialParams }: AsteroidControlsProps) {
-  const [speed, setSpeed] = useState(38000);
-  const [diameter, setDiameter] = useState(1500);
+  const [speed, setSpeed] = useState(60000); // km/h (converted from ~38000 mph)
+  const [diameter, setDiameter] = useState(450); // meters (converted from ~1500 ft)
+  const [density, setDensity] = useState(3000); // kg/m³
   const [angle, setAngle] = useState(45);
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -20,6 +21,9 @@ export default function AsteroidControls({ onLaunch, hasTarget, initialParams }:
     if (initialParams) {
       setDiameter(Math.round(initialParams.diameter));
       setSpeed(Math.round(initialParams.speed));
+      if (initialParams.density) {
+        setDensity(Math.round(initialParams.density));
+      }
     }
   }, [initialParams]);
 
@@ -31,7 +35,7 @@ export default function AsteroidControls({ onLaunch, hasTarget, initialParams }:
     // Delay for animation
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    onLaunch(diameter, speed, angle);
+    onLaunch(diameter, speed, angle, density);
     setIsLaunching(false);
   };
 
@@ -51,19 +55,22 @@ export default function AsteroidControls({ onLaunch, hasTarget, initialParams }:
             <div>
               <p className="text-neutral-500 text-[13px] leading-tight">Diameter</p>
               <p className="text-black font-semibold text-[19px] leading-tight">
-                {diameter.toLocaleString()}<span className="font-normal"> ft</span>
+                {diameter >= 1000 
+                  ? `${(diameter / 1000).toFixed(2)}` 
+                  : diameter.toLocaleString()}
+                <span className="font-normal"> {diameter >= 1000 ? 'km' : 'm'}</span>
               </p>
             </div>
           </div>
           <input
             type="range"
             min="1"
-            max="500000"
+            max="150000"
             value={diameter}
             onChange={(e) => setDiameter(Number(e.target.value))}
             className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black"
             style={{
-              background: `linear-gradient(to right, #000 0%, #000 ${(diameter / 500000) * 100}%, #e5e5e5 ${(diameter / 500000) * 100}%, #e5e5e5 100%)`
+              background: `linear-gradient(to right, #000 0%, #000 ${(diameter / 150000) * 100}%, #e5e5e5 ${(diameter / 150000) * 100}%, #e5e5e5 100%)`
             }}
           />
         </div>
@@ -83,20 +90,53 @@ export default function AsteroidControls({ onLaunch, hasTarget, initialParams }:
             <div>
               <p className="text-neutral-500 text-[13px] leading-tight">Speed</p>
               <p className="text-black font-semibold text-[19px] leading-tight">
-                {speed.toLocaleString()}<span className="font-normal"> mph</span>
+                {speed.toLocaleString()}<span className="font-normal"> km/h</span>
               </p>
             </div>
           </div>
           <input
             type="range"
-            min="1000"
-            max="100000"
-            step="1000"
+            min="1600"
+            max="160000"
+            step="1600"
             value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
             className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black"
             style={{
-              background: `linear-gradient(to right, #000 0%, #000 ${((speed - 1000) / 99000) * 100}%, #e5e5e5 ${((speed - 1000) / 99000) * 100}%, #e5e5e5 100%)`
+              background: `linear-gradient(to right, #000 0%, #000 ${((speed - 1600) / 158400) * 100}%, #e5e5e5 ${((speed - 1600) / 158400) * 100}%, #e5e5e5 100%)`
+            }}
+          />
+        </div>
+
+        <div className="border-t border-neutral-100"></div>
+
+        {/* Density Slider */}
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <Image 
+              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/3dc5151d-6568-4952-9a02-24f504a73197-neal-fun/assets/svgs/diameter-5.svg" 
+              alt="Density icon" 
+              width={28} 
+              height={28} 
+              className="w-7 h-7" 
+            />
+            <div>
+              <p className="text-neutral-500 text-[13px] leading-tight">Density</p>
+              <p className="text-black font-semibold text-[19px] leading-tight">
+                {density.toLocaleString()}<span className="font-normal"> kg/m³</span>
+              </p>
+            </div>
+          </div>
+          <input
+            type="range"
+            min="500"
+            max="8000"
+            step="100"
+            value={density}
+            onChange={(e) => setDensity(Number(e.target.value))}
+            className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black"
+            style={{
+              background: `linear-gradient(to right, #000 0%, #000 ${((density - 500) / 7500) * 100}%, #e5e5e5 ${((density - 500) / 7500) * 100}%, #e5e5e5 100%)`
             }}
           />
         </div>

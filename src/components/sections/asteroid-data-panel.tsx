@@ -5,7 +5,7 @@ import { fetchNearEarthAsteroids, type AsteroidData } from "@/lib/api/nasa-sbdb"
 import { X } from "lucide-react";
 
 interface AsteroidDataPanelProps {
-  onSelectAsteroid?: (diameter: number, speed: number) => void;
+  onSelectAsteroid?: (diameter: number, speed: number, density?: number) => void;
 }
 
 export default function AsteroidDataPanel({ onSelectAsteroid }: AsteroidDataPanelProps) {
@@ -68,10 +68,11 @@ export default function AsteroidDataPanel({ onSelectAsteroid }: AsteroidDataPane
                 className="cursor-pointer rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all hover:border-black hover:shadow-md"
                 onClick={() => {
                   if (onSelectAsteroid) {
-                    // Convert meters to feet and estimate speed
-                    const diameterFeet = asteroid.diameter * 3.28084;
-                    const typicalSpeed = 45000; // mph (typical NEO speed)
-                    onSelectAsteroid(diameterFeet, typicalSpeed);
+                    // Convert to metric: meters and km/h
+                    const diameterMeters = asteroid.diameter;
+                    const typicalSpeedKmh = 72000; // km/h (typical NEO speed ~45000 mph)
+                    const densityKgM3 = asteroid.density * 1000; // Convert g/cm³ to kg/m³
+                    onSelectAsteroid(diameterMeters, typicalSpeedKmh, densityKgM3);
                     setIsOpen(false);
                   }
                 }}
@@ -95,7 +96,7 @@ export default function AsteroidDataPanel({ onSelectAsteroid }: AsteroidDataPane
                   
                   <div className="flex justify-between">
                     <span>Density:</span>
-                    <span className="font-medium">{asteroid.density.toFixed(2)} g/cm³</span>
+                    <span className="font-medium">{(asteroid.density * 1000).toFixed(0)} kg/m³</span>
                   </div>
                   
                   <div className="flex justify-between">

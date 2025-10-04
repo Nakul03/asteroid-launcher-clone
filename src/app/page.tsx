@@ -18,7 +18,7 @@ export default function Page() {
   const [targetPosition, setTargetPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [impactData, setImpactData] = useState<ImpactData | null>(null);
   const [showImpact, setShowImpact] = useState(false);
-  const [asteroidParams, setAsteroidParams] = useState<{ diameter: number; speed: number } | null>(null);
+  const [asteroidParams, setAsteroidParams] = useState<{ diameter: number; speed: number; density?: number } | null>(null);
 
   const handleMapClick = (lat: number, lng: number) => {
     setTargetPosition({ lat, lng });
@@ -26,13 +26,14 @@ export default function Page() {
     setImpactData(null);
   };
 
-  const handleLaunch = (diameter: number, speed: number, angle: number) => {
+  const handleLaunch = (diameter: number, speed: number, angle: number, density: number) => {
     if (!targetPosition) return;
 
     const impact = calculateImpact(
       diameter,
       speed,
       angle,
+      density,
       targetPosition.lat,
       targetPosition.lng
     );
@@ -41,8 +42,8 @@ export default function Page() {
     setShowImpact(true);
   };
 
-  const handleSelectAsteroid = (diameter: number, speed: number) => {
-    setAsteroidParams({ diameter, speed });
+  const handleSelectAsteroid = (diameter: number, speed: number, density?: number) => {
+    setAsteroidParams({ diameter, speed, density });
   };
 
   const impactZones = impactData
