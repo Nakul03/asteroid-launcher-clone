@@ -30,7 +30,7 @@ export default function AsteroidDataPanel({ onSelectAsteroid }: AsteroidDataPane
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed left-6 top-[100px] z-10 rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-lg transition-all hover:scale-105"
+        className="fixed left-6 top-[100px] z-30 rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-lg transition-all hover:scale-105"
       >
         Real NASA Data
       </button>
@@ -38,7 +38,7 @@ export default function AsteroidDataPanel({ onSelectAsteroid }: AsteroidDataPane
   }
 
   return (
-    <div className="fixed left-6 top-[100px] z-10 h-[calc(100vh-140px)] w-80 overflow-hidden rounded-lg bg-white shadow-2xl">
+    <div className="fixed left-6 top-[100px] z-30 h-[calc(100vh-140px)] w-80 overflow-hidden rounded-lg bg-white shadow-2xl">
       <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
         <h3 className="text-sm font-semibold uppercase tracking-wider">
           NASA Near-Earth Asteroids

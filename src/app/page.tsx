@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import Header from "@/components/sections/header";
 import AsteroidControls from "@/components/sections/asteroid-controls";
 import ImpactResults from "@/components/sections/impact-results";
 import ImpactLegend from "@/components/sections/impact-legend";
@@ -57,9 +56,8 @@ export default function Page() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <Header />
       
-      <div className="fixed inset-0 top-[60px] z-0">
+      <div className="fixed inset-0 z-0">
         <InteractiveMap
           targetPosition={targetPosition}
           impactZones={impactZones}
@@ -77,13 +75,6 @@ export default function Page() {
             ASTEROID LAUNCHER
           </h1>
         </div>
-
-        <button
-          className="fixed right-6 top-[100px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-border bg-white transition-all duration-200 hover:bg-neutral-100 hover:scale-105"
-          aria-label="Information"
-        >
-          <span className="font-serif text-sm font-medium">i</span>
-        </button>
       </div>
 
       <AsteroidDataPanel onSelectAsteroid={handleSelectAsteroid} />

@@ -1,18 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 type AsteroidControlsProps = {
   onLaunch: (diameter: number, speed: number, angle: number) => void;
   hasTarget: boolean;
+  initialParams?: { diameter: number; speed: number } | null;
 };
 
-export default function AsteroidControls({ onLaunch, hasTarget }: AsteroidControlsProps) {
+export default function AsteroidControls({ onLaunch, hasTarget, initialParams }: AsteroidControlsProps) {
   const [speed, setSpeed] = useState(38000);
   const [diameter, setDiameter] = useState(1500);
   const [angle, setAngle] = useState(45);
   const [isLaunching, setIsLaunching] = useState(false);
+
+  // Update parameters when a real asteroid is selected
+  useEffect(() => {
+    if (initialParams) {
+      setDiameter(Math.round(initialParams.diameter));
+      setSpeed(Math.round(initialParams.speed));
+    }
+  }, [initialParams]);
 
   const handleLaunch = async () => {
     if (!hasTarget) return;
