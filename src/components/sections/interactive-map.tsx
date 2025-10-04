@@ -67,10 +67,17 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
         setAsteroidPosition({ x: point.x, y: point.y });
       }
       
-      // After asteroid falls (2.5s), show explosion
+      // After asteroid falls (2.5s), show explosion at impact point
       setTimeout(() => {
         setAsteroidFalling(false);
         setShowExplosion(true);
+        
+        // Recalculate explosion position to ensure it's at exact impact point
+        if (mapRef.current) {
+          const map = mapRef.current;
+          const point = map.latLngToContainerPoint([targetPosition.lat, targetPosition.lng]);
+          setAsteroidPosition({ x: point.x, y: point.y });
+        }
       }, 2500);
       
       // After explosion flash (300ms), start crater expansion
@@ -109,20 +116,7 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
         
         <MapClickHandler onMapClick={onMapClick} />
         
-        {targetPosition && showImpact && !craterExpanding && impactZones.map((zone, index) => (
-          <Circle
-            key={`${zone.label}-${index}`}
-            center={[targetPosition.lat, targetPosition.lng]}
-            radius={zone.radius}
-            pathOptions={{
-              color: zone.color,
-              fillColor: zone.color,
-              fillOpacity: 0.3,
-              weight: 2,
-            }}
-          />
-        ))}
-        
+        {/* Only show craters during expanding animation */}
         {targetPosition && showImpact && craterExpanding && impactZones.map((zone, index) => (
           <Circle
             key={`${zone.label}-expanding-${index}`}
@@ -135,6 +129,21 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
               weight: 2,
             }}
             className="crater-expanding"
+          />
+        ))}
+        
+        {/* Show static craters after expansion completes */}
+        {targetPosition && showImpact && !craterExpanding && !asteroidFalling && !showExplosion && impactZones.map((zone, index) => (
+          <Circle
+            key={`${zone.label}-${index}`}
+            center={[targetPosition.lat, targetPosition.lng]}
+            radius={zone.radius}
+            pathOptions={{
+              color: zone.color,
+              fillColor: zone.color,
+              fillOpacity: 0.3,
+              weight: 2,
+            }}
           />
         ))}
         
@@ -159,7 +168,7 @@ export default function InteractiveMap({ targetPosition, impactZones, onMapClick
         </div>
       )}
       
-      {/* Explosion flash */}
+      {/* Explosion flash at impact point */}
       {showExplosion && asteroidPosition && (
         <div
           className="explosion-flash"
