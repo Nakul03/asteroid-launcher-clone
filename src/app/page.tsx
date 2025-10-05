@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { ArrowLeft } from "lucide-react";
 import AsteroidControls from "@/components/sections/asteroid-controls";
 import ImpactResults from "@/components/sections/impact-results";
 import ImpactLegend from "@/components/sections/impact-legend";
@@ -57,6 +58,16 @@ export default function Page() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
+      
+      {/* Back Button */}
+      <button
+        onClick={() => window.history.back()}
+        className="fixed left-6 top-6 z-50 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium uppercase tracking-wider text-black shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="h-5 w-5" />
+        <span>Back</span>
+      </button>
       
       <div className="fixed inset-0 z-0">
         <InteractiveMap
